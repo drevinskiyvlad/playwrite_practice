@@ -1,6 +1,6 @@
 name: Playwright Allure Report Workflow
 
-on: [ push ]
+on: [push]
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: '16'
 
       - name: Install Dependencies
         run: |
@@ -33,10 +33,8 @@ jobs:
 
       - name: Push Report to Another Branch
         run: |
-          REPORT_DIRECTORY="allure-report"
           REPORT_BRANCH="report-branch"
-          git checkout -b $NEW_BRANCH_NAME
-          cp -r $REPORT_DIRECTORY/* ./
+          git checkout -b $REPORT_BRANCH
           git add .
           git commit -m "Add Allure report"
           git push origin $REPORT_BRANCH
@@ -48,9 +46,3 @@ jobs:
           GITHUB_TOKEN="$GITHUB_TOKEN"
           git checkout $BRANCH_NAME
           git push origin $BRANCH_NAME
-          git checkout $BRANCH_NAME
-          touch .nojekyll # Create a .nojekyll file to disable Jekyll processing (if needed)
-          git add .
-          git commit -m "Configure GitHub Pages"
-          git push --force origin $BRANCH_NAME:gh-pages
-      
