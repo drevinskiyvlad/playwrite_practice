@@ -8,7 +8,7 @@ jobs:
 
     steps:
       - name: Copy package.json to runner machine
-        run: cp package.json $RUNNER_WORKDIR
+        run: cp package.json package.json
 
       - name: Install dependencies
         run: npm install
