@@ -1,66 +1,38 @@
-name: Playwright Tests and Report
+name: Playwright Tests
 
 on:
   push:
-    branches: main
+    branches:
+      - main
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-
       - name: Install dependencies
         run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
       - name: Run Playwright tests
         run: npx playwright test
 
       - name: Copy Allure data from previous runs
-        run: mkdir allure-results
-             cp -r allure-results/. allure-results-previous/
+        run: cp -r --update ./allure-results/history ./allure-results/current
 
       - name: Create new report
-        run: npx allure generate allure-results allure-report
+        run: allure generate allure-results/current
 
-      - name: Push report to another branch
-        run: git checkout -b report
-             git add allure-report
-             git commit -m "Allure report"
-             git push origin report
+      - name: Push report to other branch
+        run: git checkout -b allure-report && git add allure-results/report && git commit -m "Allure test report" && git push origin allure-report
 
       - name: Add GitHub Pages to branch with report
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.repos.createPagesSite({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              source: {
-                branch: 'report',
-                path: '/allure-report',
-              },
-            })
+        run: gh-pages -d allure-results/report
 
-      - name: Get link for GitHub page
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.repos.getPagesSite({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
-            .then((response) => {
-              console.log(response.data.html_url);
-            });
-
-      - name: Add link to GitHub page to description
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.repos.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              description: `Allure report: [link](${process.env.GITHUB_PAGES_URL})`
-            })
+      - name: Link to GitHub page in description
+        run: |
+          github_page_url=$(gh-pages -d allure-results/report -u)
+          echo "GitHub page URL: $github_page_url"
+          echo "Add this link to the description of the PR."
