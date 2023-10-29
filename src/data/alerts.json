@@ -1,0 +1,7 @@
+{
+  "invalid_email": "Email is invalid",
+  "taken_login": "Login has already been taken",
+  "invalid_password": "Password is too short (minimum is 8 characters)",
+  "invalid_user": "Invalid user or password",
+  "successfull_registration": "Account was successfully created"
+}
