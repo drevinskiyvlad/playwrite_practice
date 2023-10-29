@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Install dependencies
         run: npm install
 
@@ -26,7 +27,12 @@ jobs:
         run: allure generate allure-results/current
 
       - name: Push report to other branch
-        run: git checkout -b allure-report && git add allure-results/report && git commit -m "Allure test report" && git push origin allure-report
+        run: |
+          git checkout -b allure-report
+          git add allure-results/report
+          git commit -m "Allure test report"
+          git push origin HEAD:allure-report
+      
 
       - name: Add GitHub Pages to branch with report
         run: gh-pages -d allure-results/report
