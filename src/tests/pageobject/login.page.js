@@ -1,5 +1,3 @@
-const {expect} = require('@playwright/test');
-
 const notice = "#flash_notice";
 const errorBlock = "#flash_error";
 const loginField = "#username";
@@ -15,22 +13,21 @@ exports.LoginPage = class LoginPage {
         this.page = page;
     }
 
+    async getAlert() {
+        return this.page.locator(notice);
+    }
+
+    async getErrorMessage() {
+        return this.page.locator(errorBlock);
+    }
+
     async fillLoginForm(login, password) {
         await this.page.locator(loginField).fill(login);
         await this.page.locator(passwordField).fill(password);
     }
 
-    async checkAlert(message) {
-        await expect(this.page.locator(notice)).toContainText(message)
-    }
-
     async clickSubmitButton() {
         await this.page.locator(submitButton).click();
-    }
-
-    async checkErrorMessage(message) {
-        await expect(this.page.locator(errorBlock)).toBeVisible();
-        await expect(this.page.locator(errorBlock)).toHaveText(message);
     }
 
     async goto() {

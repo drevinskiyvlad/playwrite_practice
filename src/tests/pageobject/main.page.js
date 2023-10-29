@@ -1,5 +1,3 @@
-const {expect} = require('@playwright/test');
-
 const accountText = "#loggedas";
 const accountButton = "a.my-account";
 
@@ -12,8 +10,8 @@ exports.MainPage = class MainPage {
         this.page = page;
     }
 
-    async isAccountTextVisible() {
-        await expect(this.page.locator(accountText)).toBeVisible();
+    async getAccountText() {
+        return this.page.locator(accountText);
     }
 
     async clickMyAccount() {

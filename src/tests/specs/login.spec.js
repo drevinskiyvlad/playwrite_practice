@@ -2,7 +2,7 @@ import data from '../../data/data.json'
 import alerts from '../../data/alerts.json'
 import fields from '../../data/fields.json'
 
-const {test} = require('@playwright/test');
+const {test, expect} = require('@playwright/test');
 const {Faker} = require('../../helper/faker');
 const {RegistrationPage} = require('../pageobject/registration.page');
 const {LoginPage} = require('../pageobject/login.page');
@@ -24,14 +24,14 @@ test.describe('Login', () => {
         await registrationPage.goto();
         await registrationPage.fillRegistrationForm(login, password, password, firstName, lastName, email)
         await registrationPage.clickSubmitButton();
-        await loginPage.checkAlert(alerts.successfull_registration);
+        await expect(await loginPage.getAlert()).toContainText(alerts.successfull_registration);
     });
 
     test('Registration with empty fields', async ({page}) => {
         const registrationPage = new RegistrationPage(page);
         await registrationPage.goto();
         await registrationPage.clickSubmitButton();
-        await registrationPage.isErrorMessageVisible();
+        await expect(await registrationPage.getErrorMessage()).toBeVisible();
         await registrationPage.checkIfFieldsColored([fields.login,
             fields.password,
             fields.first_name,
@@ -50,6 +50,7 @@ test.describe('Login', () => {
         await registrationPage.goto();
         await registrationPage.fillRegistrationForm(login, password, password, firstName, lastName, email)
         await registrationPage.clickSubmitButton();
+        await expect(await registrationPage.getErrorMessage()).toBeVisible();
         await registrationPage.checkTextInElements(
             [alerts.invalid_email,
                 alerts.taken_login,
@@ -69,9 +70,9 @@ test.describe('Login', () => {
         await loginPage.goto();
         await loginPage.fillLoginForm(login, password)
         await loginPage.clickSubmitButton();
-        await mainPage.isAccountTextVisible();
+        await expect(await mainPage.getAccountText()).toBeVisible();
         await mainPage.clickMyAccount();
-        await accountPage.checkEmail(email);
+        await expect(await accountPage.getEmail()).toHaveValue(email);
     });
 
     test('Login with invalid login', async ({page}) => {
@@ -83,6 +84,7 @@ test.describe('Login', () => {
         await loginPage.goto();
         await loginPage.fillLoginForm(login, password);
         await loginPage.clickSubmitButton();
-        await loginPage.checkErrorMessage(alerts.invalid_user);
+        await expect(await loginPage.getErrorMessage()).toBeVisible();
+        await expect(await loginPage.getErrorMessage()).toHaveText(alerts.invalid_user);
     });
 });

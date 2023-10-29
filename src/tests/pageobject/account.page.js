@@ -1,5 +1,3 @@
-const {expect} = require('@playwright/test');
-
 const emailInput = "input#user_mail";
 
 exports.AccountPage = class AccountPage {
@@ -11,8 +9,8 @@ exports.AccountPage = class AccountPage {
         this.page = page;
     }
 
-    async checkEmail(email) {
-        await expect(this.page.locator(emailInput)).toHaveValue(email);
+    async getEmail() {
+        return this.page.locator(emailInput);
     }
 
     async goto() {

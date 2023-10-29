@@ -18,6 +18,10 @@ exports.RegistrationPage = class RegistrationPage {
         this.page = page;
     }
 
+    async getErrorMessage(){
+        return this.page.locator(errorBlock);
+    }
+
     async fillRegistrationForm(login, password, passwordConfirmation, firstName, lastName, email) {
         await this.page.locator(loginField).fill(login);
         await this.page.locator(passwordField).fill(password);
@@ -25,10 +29,6 @@ exports.RegistrationPage = class RegistrationPage {
         await this.page.locator(firstNameField).fill(firstName);
         await this.page.locator(lastNameField).fill(lastName);
         await this.page.locator(emailField).fill(email);
-    }
-
-    async isErrorMessageVisible(){
-        await expect(this.page.locator(errorBlock)).toBeVisible();
     }
 
     async checkTextInElements(textArray) {
