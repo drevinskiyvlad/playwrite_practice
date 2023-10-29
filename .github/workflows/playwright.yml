@@ -1,66 +1,48 @@
-name: Playwright Tests and Report
+name: Playwright Allure Report Workflow
 
-on:
-  push:
-    branches: [ main ]
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Playwright tests
-        run: npx playwright test
-
-      - name: Copy Allure data from previous runs
-        run: mkdir allure-results
-             cp -r allure-results/. allure-results-previous/
-
-      - name: Create new report
-        run: npx allure generate allure-results allure-report
-
-      - name: Push report to another branch
-        run: git checkout -b report
-             git add allure-report
-             git commit -m "Allure report"
-             git push origin report
-
-      - name: Add GitHub Pages to branch with report
-        uses: actions/github-script@v6
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
         with:
-          script: |
-            github.rest.repos.createPagesSite({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              source: {
-                branch: 'report',
-                path: '/allure-report',
-              },
-            })
+          node-version: '18'
 
-      - name: Get link for GitHub page
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.repos.getPagesSite({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
-            .then((response) => {
-              console.log(response.data.html_url);
-            });
+      - name: Install Dependencies
+        run: |
+          npm install
 
-      - name: Add link to GitHub page to description
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.repos.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              description: `Allure report: [link](${process.env.GITHUB_PAGES_URL})`
-            })
+      - name: Run Playwright Tests
+        run: |
+          npx playwright test
+
+      - name: Copy Allure Data
+        run: |
+          cp -r allure-results/ allure-results-previous
+
+      - name: Generate Allure Report
+        run: |
+          npm run report
+
+      - name: Push Report to Another Branch
+        run: |
+          REPORT_BRANCH="report-branch"
+          git checkout -b $REPORT_BRANCH
+          git add .
+          git commit -m "Add Allure report"
+          git push origin $REPORT_BRANCH
+
+      - name: Setup GitHub Pages
+        run: |
+          BRANCH_NAME="report-branch"
+          REPO_NAME="$GITHUB_REPOSITORY"
+          GITHUB_TOKEN="$GITHUB_TOKEN"
+          git checkout $BRANCH_NAME
+          git push origin $BRANCH_NAME
