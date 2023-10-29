@@ -23,12 +23,12 @@ yarn install
 4. Run the tests using Playwright's test runner.
 
 ## Usage
-You can run test in headfull or headless mode and get reports of testing
+You can run test in headed or headless mode and get reports of testing
 * To run in a headless mode:
 ```
 npx playwright test
 ```
-* To run in a headfull mode:
+* To run in a headed mode:
 ````
 npx playwright test --ui
 ````
