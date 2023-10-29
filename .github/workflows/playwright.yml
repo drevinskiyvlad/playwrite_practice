@@ -1,63 +1,35 @@
-name: Playwright Allure Report Workflow
+name: Playwright Tests
 
 on: [push]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm install
 
-      - name: Set Up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'  # Use Node.js 16
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
-      - name: Install Dependencies
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - name: Copy Allure data from previous runs
+        run: cp -r --update ./allure-results/history ./allure-results/current
+
+      - name: Create new report
+        run: allure generate allure-results/current
+
+      - name: Push report to other branch
+        run: git checkout -b allure-report && git add allure-results/report && git commit -m "Allure test report" && git push origin allure-report
+
+      - name: Add GitHub Pages to branch with report
+        run: gh-pages -d allure-results/report
+
+      - name: Link to GitHub page in description
         run: |
-          # Install project dependencies
-          npm install
-
-      - name: Run Playwright Tests
-        run: |
-          # Replace with the command to run your Playwright tests
-          # e.g., npx playwright test
-          npx playwright test
-
-      - name: Copy Allure Data
-        run: |
-          # Replace with the command to copy Allure results from previous runs
-          # This command depends on how you have your Allure results set up
-          echo "Copy Allure data here"
-
-      - name: Generate Allure Report
-        run: |
-          # Replace with the command to generate the Allure report
-          # e.g., allure generate <allure-results-directory> --clean -o <report-directory>
-          # You should replace <allure-results-directory> and <report-directory> with your paths.
-          echo "Generate Allure report here"
-
-      - name: Push Report to Another Branch
-        run: |
-          # Replace with the branch name where you want to push the report
-          REPORT_BRANCH="your-report-branch"
-          git checkout -b $REPORT_BRANCH
-          # Replace with the command to copy the generated report to the new branch
-          # e.g., cp -r <report-directory>/* ./
-          echo "Copy report to the new branch here"
-          git add .
-          git commit -m "Add Allure report"
-          git push origin $REPORT_BRANCH
-
-      - name: Setup GitHub Pages
-        run: |
-          # Enable GitHub Pages for the report branch
-          # Replace "gh-pages" with your branch name
-          BRANCH_NAME="your-report-branch"
-          REPO_NAME="$GITHUB_REPOSITORY"
-          GITHUB_TOKEN="$GITHUB_TOKEN"
-          echo "Enabling GitHub Pages for $BRANCH_NAME branch in $REPO_NAME"
-          git checkout $BRANCH_NAME
-          git push origin $BRANCH_NAME
+          github_page_url=$(gh-pages -d allure-results/report -u)
+          echo "GitHub page URL: $github_page_url"
+          echo "Add this link to the description of the PR."
