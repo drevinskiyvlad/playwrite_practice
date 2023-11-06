@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "report":"allure open ./allure-report"
+    "report":"allure open ./allure-report",
+    "test": "playwright test"
   },
   "keywords": [],
   "author": "",
